@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Visitor Log</title>
+  <style>
+    body { background-color: #1e1e2f; color: #fff; font-family: Arial, sans-serif; padding: 30px; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border-bottom: 1px solid #444; }
+    th { background-color: #333; }
+    input { padding: 8px; width: 300px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Visitor Log</h1>
+  <input type="text" id="search" placeholder="Search..." />
+  <table><thead><tr><th>Full Name</th><th>Company</th><th>Email</th><th>ID</th></tr></thead><tbody id="tbody"></tbody></table>
+  <script>
+    let all = [];
+    async function load() {
+      const res = await fetch('/api/visitors');
+      all = await res.json();
+      draw(all);
+    }
+    function draw(data) {
+      const tb = document.getElementById("tbody");
+      tb.innerHTML = "";
+      data.forEach(v => {
+        const row = `<tr><td>${v.fullName}</td><td>${v.company}</td><td>${v.email}</td><td>${v.id}</td></tr>`;
+        tb.innerHTML += row;
+      });
+    }
+    document.getElementById("search").addEventListener("input", function() {
+      const k = this.value.toLowerCase();
+      draw(all.filter(v => v.fullName.toLowerCase().includes(k) || v.company.toLowerCase().includes(k) || v.email.toLowerCase().includes(k)));
+    });
+    load();
+  </script>
+</body>
+</html>

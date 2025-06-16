@@ -1,0 +1,16 @@
+{
+  "name": "leena4-kenya",
+  "version": "1.0.0",
+  "description": "Kenya expo QR and badge system",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "@sendgrid/mail": "^7.7.0",
+    "qrcode": "^1.5.1",
+    "uuid": "^9.0.0"
+  }
+}

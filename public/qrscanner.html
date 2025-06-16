@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QR Scanner</title>
+  <style>
+    body { background-color: #2b2f3a; color: #fff; font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+    input { padding: 14px; font-size: 18px; width: 320px; text-align: center; border-radius: 5px; border: none; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Scan QR or Enter Badge ID</h2>
+  <input id="scannerInput" placeholder="Badge ID or QR" autofocus />
+  <script>
+    const input = document.getElementById("scannerInput");
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const badgeId = input.value.trim();
+        if (badgeId) {
+          window.location.href = `/badge.html?badge_id=${badgeId}`;
+        }
+      }
+    });
+    input.focus();
+  </script>
+</body>
+</html>
