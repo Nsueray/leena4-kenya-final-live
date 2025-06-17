@@ -17,6 +17,10 @@ app.use('/register', require('./routes/register'));
 const massImportRoute = require('./routes/massImport');
 app.use('/massimport', massImportRoute);
 
+app.get('/onsiteregistration005.html', (req, res) => {
+  res.redirect(301, '/form-onsite.html');
+});
+
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
