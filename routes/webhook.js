@@ -16,8 +16,25 @@ function readVisitors() {
   return JSON.parse(fs.readFileSync(visitorsFile));
 }
 
-function writeVisitors(data) {
-  fs.writeFileSync(visitorsFile, JSON.stringify(data, null, 2));
+function safeWriteVisitors(newEntry) {
+  let visitors = [];
+  try {
+    if (fs.existsSync(visitorsFile)) {
+      const fileData = fs.readFileSync(visitorsFile, 'utf8');
+      visitors = JSON.parse(fileData);
+    }
+  } catch (err) {
+    console.error("❌ Error reading visitors file:", err);
+  }
+
+  visitors.push(newEntry);
+
+  try {
+    fs.writeFileSync(visitorsFile, JSON.stringify(visitors, null, 2));
+    console.log("✅ Visitor saved:", newEntry.id || newEntry.fullName);
+  } catch (err) {
+    console.error("❌ Error writing visitors file:", err);
+  }
 }
 
 router.post('/', async (req, res) => {
@@ -58,7 +75,7 @@ router.post('/', async (req, res) => {
 
     const visitors = readVisitors();
     visitors.push(newVisitor);
-    writeVisitors(visitors);
+    safeWriteVisitors(newVisitor);
 
     if (config.sendEmail) {
       await sendEmail({
