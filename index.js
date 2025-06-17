@@ -14,6 +14,9 @@ app.use('/api/visitors', require('./routes/apiVisitors'));
 app.use('/api/checkins', require('./routes/apiCheckins'));
 app.use('/register', require('./routes/register'));
 
+const massImportRoute = require('./routes/massImport');
+app.use('/massimport', massImportRoute);
+
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
