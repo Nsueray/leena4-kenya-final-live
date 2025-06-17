@@ -6,7 +6,12 @@ const { v4: uuidv4 } = require('uuid');
 const { createQRAndSendEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
-const dataDir = path.join(__dirname, '../data');
+
+// ✔️ visitors.json yolu: production'da /data, local'de ./data
+const dataDir = process.env.NODE_ENV === 'production'
+  ? '/data'
+  : path.join(__dirname, '../data');
+
 const visitorsFile = path.join(dataDir, 'visitors.json');
 
 // 1. visitors dizini ve dosyası hazır değilse oluştur
@@ -27,19 +32,24 @@ router.post('/register', async (req, res) => {
     // 2. Gerekli alanları doğrula
     const { firstName, lastName, company = '', email } = req.body;
     if (!firstName || !lastName || !email) {
-      return res.status(400).json({ error: 'firstName, lastName ve email gerekli.' });
+      return res.status(400).json({ error: 'firstName, lastName ve email gereklidir.' });
     }
 
     // 3. Ziyaretçi objesini oluştur
     const badgeId = `MCKenya${Date.now()}`;
     const fullName = `${firstName.trim()} ${lastName.trim()}`;
-    const visitor = { badgeId, fullName, company, email, createdAt: new Date().toISOString() };
+    const visitor = {
+      badgeId,
+      fullName,
+      company,
+      email,
+      createdAt: new Date().toISOString(),
+    };
 
     // 4. Dosyaya kaydet
     safeWriteVisitors(visitor);
 
     // 5. QR oluşturup e-posta gönder
-    //    emailTemplate değişkeninizi config’ten ya da sabitten yükleyin
     const emailTemplate = `Hello [NAME],
 
 Your badge has been created.
