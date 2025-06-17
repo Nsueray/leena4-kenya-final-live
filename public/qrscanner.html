@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <title>QR Scanner with Manual Entry</title>
   <style>
+    /* Sayfa ebatı ve kenarsız yazdırma */
+    @page {
+      size: 10cm 7cm landscape;
+      margin: 0;
+    }
+
     body {
       background-color: #2b2f3a;
       color: #fff;
@@ -56,7 +62,6 @@
     manualToggle.addEventListener("change", () => {
       manualForm.classList.toggle("hidden", !manualToggle.checked);
     });
-
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         const badgeId = input.value.trim();
@@ -65,18 +70,18 @@
         }
       }
     });
-
+     
     async function submitManual() {
       const name = document.getElementById("inputName").value.trim();
       const lastName = document.getElementById("inputLastName").value.trim();
       const email = document.getElementById("inputEmail").value.trim();
       const company = document.getElementById("inputCompany").value.trim();
-
+      
       if (!name || !lastName || !email || !company) {
         alert("Please fill in all required fields.");
         return;
       }
-
+      
       const res = await fetch("/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -89,7 +94,7 @@
           source: "Manual - qrscanner"
         })
       });
-
+        
       const result = await res.json();
       if (result.badgeId) {
         window.location.href = `/badge.html?badge_id=${result.badgeId}`;

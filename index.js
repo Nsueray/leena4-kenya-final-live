@@ -12,7 +12,7 @@ app.use('/webhook', webhookRoute);
 
 app.use('/api/visitors', require('./routes/apiVisitors'));
 app.use('/api/checkins', require('./routes/apiCheckins'));
-app.use('/', require('./routes/register'));
+app.use('/register', require('./routes/register'));
 
 const massImportRoute = require('./routes/massImport');
 app.use('/massimport', massImportRoute);

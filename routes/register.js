@@ -1,80 +1,62 @@
+// routes/register.js
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const QRCode = require('qrcode');
 const { v4: uuidv4 } = require('uuid');
-const config = require('../config');
-const sendEmail = require('../utils/sendEmail');
+const { createQRAndSendEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
-const visitorsFile = path.join(__dirname, '../data/visitors.json');
-const qrDir = path.join(__dirname, '../public/qrcodes');
+const dataDir = path.join(__dirname, '../data');
+const visitorsFile = path.join(dataDir, 'visitors.json');
 
-if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir);
+// 1. visitors dizini ve dosyası hazır değilse oluştur
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+if (!fs.existsSync(visitorsFile)) fs.writeFileSync(visitorsFile, '[]', 'utf-8');
 
-function readVisitors() {
-  if (!fs.existsSync(visitorsFile)) return [];
-  return JSON.parse(fs.readFileSync(visitorsFile));
+// Güvenli yazma: önce yedeğini al, sonra ekle
+function safeWriteVisitors(entry) {
+  const backup = path.join(dataDir, 'visitors.bak.json');
+  fs.copyFileSync(visitorsFile, backup);
+  const current = JSON.parse(fs.readFileSync(visitorsFile, 'utf-8'));
+  current.push(entry);
+  fs.writeFileSync(visitorsFile, JSON.stringify(current, null, 2), 'utf-8');
 }
 
-function safeWriteVisitors(newEntry) {
-  let visitors = [];
+router.post('/register', async (req, res) => {
   try {
-    if (fs.existsSync(visitorsFile)) {
-      const fileData = fs.readFileSync(visitorsFile, 'utf8');
-      visitors = JSON.parse(fileData);
+    // 2. Gerekli alanları doğrula
+    const { firstName, lastName, company = '', email } = req.body;
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ error: 'firstName, lastName ve email gerekli.' });
     }
+
+    // 3. Ziyaretçi objesini oluştur
+    const badgeId = `MCKenya${Date.now()}`;
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
+    const visitor = { badgeId, fullName, company, email, createdAt: new Date().toISOString() };
+
+    // 4. Dosyaya kaydet
+    safeWriteVisitors(visitor);
+
+    // 5. QR oluşturup e-posta gönder
+    //    emailTemplate değişkeninizi config’ten ya da sabitten yükleyin
+    const emailTemplate = `Hello [NAME],
+
+Your badge has been created.
+Badge ID: [BADGE_ID]
+Company: [COMPANY]
+
+Please find your QR attached.
+
+See you at the event!`;
+    await createQRAndSendEmail(visitor, badgeId, emailTemplate);
+
+    // 6. Başarı yanıtı JSON olarak dön
+    return res.json({ success: true, badgeId });
   } catch (err) {
-    console.error("❌ Error reading visitors file:", err);
+    console.error('🔴 Register error:', err);
+    return res.status(500).json({ error: err.message });
   }
-
-  visitors.push(newEntry);
-
-  try {
-    fs.writeFileSync(visitorsFile, JSON.stringify(visitors, null, 2));
-    console.log("✅ Visitor saved:", newEntry.id || newEntry.fullName);
-  } catch (err) {
-    console.error("❌ Error writing visitors file:", err);
-  }
-}
-
-router.post('/', async (req, res) => {
-  const { name, lastName, email, company, origin, source } = req.body;
-  if (!name || !lastName || !email || !company) {
-    return res.status(400).json({ message: 'Missing fields' });
-  }
-
-  const badgeId = Date.now().toString();
-  const fullName = `${name} ${lastName}`;
-  const qrUrl = `/badge.html?badge_id=${badgeId}`;
-  const qrPath = path.join(qrDir, `${badgeId}.png`);
-
-  await QRCode.toFile(qrPath, `https://yourdomain.com${qrUrl}`);
-
-  const newVisitor = {
-    id: badgeId,
-    fullName,
-    email,
-    company,
-    origin,
-    source,
-    createdAt: new Date().toISOString()
-  };
-
-  const visitors = readVisitors();
-  visitors.push(newVisitor);
-  safeWriteVisitors(newVisitor);
-
-  if (config.sendEmail) {
-    await sendEmail({
-      to: email,
-      subject: config.emailSubject,
-      text: config.emailBody.replace('[NAME]', fullName),
-      attachments: [{ filename: 'qrcode.png', path: qrPath }]
-    });
-  }
-
-  res.json({ message: 'Visitor registered', badgeId });
 });
 
 module.exports = router;
