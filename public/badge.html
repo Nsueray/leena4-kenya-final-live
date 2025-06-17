@@ -4,37 +4,14 @@
   <meta charset="UTF-8">
   <title>Print Badge</title>
   <style>
-    @page {
-      size: 10cm 7cm landscape;
-      margin: 0;
-    }
     @media print {
       body { margin: 0; padding: 0; }
       .badge { page-break-after: always; }
     }
-    body {
-      background: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    .badge {
-      width: 10cm;
-      height: 7cm;
-      border: 1px solid #000;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    .fullname {
-      font-size: 22pt;
-      font-weight: bold;
-    }
-    .company {
-      font-size: 18pt;
-      margin-top: 5px;
-    }
+    body { background: white; font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+    .badge { width: 100mm; height: 50mm; border: 1px solid #000; margin: 0 auto 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .fullname { font-size: 22pt; font-weight: bold; }
+    .company { font-size: 18pt; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -50,7 +27,7 @@
       try {
         const res = await fetch('/api/visitors');
         const data = await res.json();
-        const visitor = data.find(v => v.badgeId === badgeId);  // ✅ düzeltildi
+        const visitor = data.find(v => v.id === badgeId);
         if (!visitor) return;
         document.getElementById('fullName').textContent = visitor.fullName;
         document.getElementById('company').textContent = visitor.company;
