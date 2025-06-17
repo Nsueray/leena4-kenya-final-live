@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Elan Expo Admin Panel</title>
+  <style>
+    body { background-color: #f5f5f5; font-family: Arial, sans-serif; padding: 40px; }
+    h1 { text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; max-width: 900px; margin: auto; }
+    .btn {
+      background-color: #1e1e2f;
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .btn:hover { background-color: #333; }
+    .btn span { display: block; margin-top: 10px; font-size: 14px; color: #bbb; }
+  </style>
+</head>
+<body>
+  <h1>Elan Expo Admin Panel</h1>
+  <div class="grid">
+    <a class="btn" href="/form-onsite.html" target="_blank">Form Onsite <span>Register visitors manually</span></a>
+    <a class="btn" href="/qrscanner.html" target="_blank">QR Scanner <span>Scan badges & print</span></a>
+    <a class="btn" href="/visitorlog.html" target="_blank">Visitor Log <span>Search & export all records</span></a>
+    <a class="btn" href="/badge.html?badge_id=test" target="_blank">Badge Manual <span>Test badge print</span></a>
+    <a class="btn" href="/qrcodes/" target="_blank">QR Codes <span>View QR image folder</span></a>
+  </div>
+  <script>
+    if (localStorage.getItem("loggedIn") !== "true") {
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>
