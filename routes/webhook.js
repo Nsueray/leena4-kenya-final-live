@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const QRCode = require('qrcode');
 const config = require('../config');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail } = require('../utils/sendEmail');
 
 const router = express.Router();
 const visitorsFile = path.join(__dirname, '../data/visitors.json');
